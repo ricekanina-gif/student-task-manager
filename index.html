@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Academic Deadline and Task Priority Management Web Application</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Student Academic Deadline and Task Priority Management Web Application</h1>
+      <button id="themeToggle" class="theme-toggle">🌙 Dark</button>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="stats-dashboard">
+      <div class="stat-card">
+        <div class="stat-number" id="activeTasks">0</div>
+        <div class="stat-label">Active Tasks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="completedTasks">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="overdueTasks">0</div>
+        <div class="stat-label">Overdue</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalTasks">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-label">
+        Overall Progress: <span id="progressPercent">0</span>%
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <h2>Add New Task</h2>
+    <form id="taskForm">
+      <input type="text" id="taskTitle" placeholder="Task Title" required>
+      <input type="text" id="course" placeholder="Course/Subject" required>
+      <input type="date" id="dueDate" required>
+      <select id="priority" required>
+        <option value="" disabled selected>Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      
+      <div class="image-upload-section">
+        <label for="taskImage">📷 Add Image (Optional)</label>
+        <input type="file" id="taskImage" accept="image/*">
+        <div id="imagePreview" class="image-preview"></div>
+      </div>
+      
+      <button type="submit">Add Task</button>
+    </form>
+
+    <div style="display: flex; gap: 0.8em; margin-bottom: 1.5em; flex-wrap: wrap; align-items: center;">
+      <input type="text" id="filterInput" placeholder="Search tasks..." style="flex: 1; min-width: 200px;">
+      <button type="button" onclick="clearCompleted()" style="background: #666; padding: 0.8em 1em;">Clear Done</button>
+    </div>
+
+    <h2>Your Tasks <span style="color: #79a0fa; font-size: 0.8em;">(<span id="taskCount">0</span>)</span></h2>
+    <ul class="task-list" id="taskList"></ul>
+  </div>
+
+  <!-- Image Modal for viewing full size -->
+  <div id="imageModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImage">
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
