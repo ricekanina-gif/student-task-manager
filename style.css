@@ -10,7 +10,6 @@
   --accent-secondary: #395ccf;
   --border-color: #b9caf9;
   --input-bg: #f7faff;
-  --grid-color: rgba(0,0,0,0.04);
   --input-text: #24293a;
   --input-placeholder: #888;
 }
@@ -29,23 +28,30 @@ body.dark-mode {
   --input-placeholder: #a0a0a0;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   background-color: var(--bg-primary);
   min-height: 100vh;
   font-family: 'Fira Mono', 'Consolas', monospace;
   margin: 0;
   padding: 0;
-  background-image:
-    linear-gradient(0deg, var(--grid-color) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-  background-size: 24px 24px;
   transition: background-color 0.3s ease;
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 header {
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  padding: 1.5em 2em;
+  padding: 1.5em 1em;
   text-align: center;
   font-family: 'Caveat', cursive, 'Fira Mono', monospace;
   font-size: 2.5em;
@@ -67,7 +73,8 @@ header {
 .header-content h1 {
   margin: 0;
   flex: 1;
-  min-width: 300px;
+  min-width: 200px;
+  word-wrap: break-word;
 }
 
 .theme-toggle {
@@ -76,10 +83,11 @@ header {
   border: none;
   border-radius: 6px;
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-size: 0.9em;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.3s;
+  white-space: nowrap;
 }
 
 .theme-toggle:hover {
@@ -88,29 +96,31 @@ header {
 
 .container {
   max-width: 700px;
-  margin: 2.5em auto 0 auto;
+  margin: 0 auto;
   background: var(--bg-tertiary);
-  padding: 2em 2em 2.5em 2em;
+  padding: 1.5em 1em 2.5em 1em;
   border-radius: 14px;
-  box-shadow: 0 4px 32px rgba(21, 25, 44, 0.07), 0 2px 0 var(--accent-primary) inset;
+  box-shadow: 0 4px 32px rgba(21, 25, 44, 0.07);
   color: var(--text-secondary);
   border: 2px dashed var(--accent-primary);
   font-size: 1.08em;
   transition: background-color 0.3s ease;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .stats-dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1em;
-  margin-bottom: 2em;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8em;
+  margin-bottom: 1.5em;
 }
 
 .stat-card {
   background: var(--bg-secondary);
   border: 2px dashed var(--accent-primary);
   border-radius: 8px;
-  padding: 1.5em 1em;
+  padding: 1em 0.8em;
   text-align: center;
   box-shadow: 0 2px 8px rgba(23, 32, 52, 0.3);
   transition: transform 0.2s;
@@ -121,21 +131,21 @@ header {
 }
 
 .stat-number {
-  font-size: 2.2em;
+  font-size: 1.8em;
   font-weight: bold;
   color: var(--accent-primary);
   margin-bottom: 0.3em;
 }
 
 .stat-label {
-  font-size: 0.85em;
+  font-size: 0.75em;
   color: #afbeea;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .progress-section {
-  margin-bottom: 2em;
+  margin-bottom: 1.5em;
 }
 
 .progress-label {
@@ -143,12 +153,12 @@ header {
   justify-content: space-between;
   margin-bottom: 0.5em;
   color: #afbeea;
-  font-size: 0.95em;
+  font-size: 0.9em;
 }
 
 .progress-bar {
   width: 100%;
-  height: 10px;
+  height: 8px;
   background: var(--bg-secondary);
   border: 1px solid var(--accent-primary);
   border-radius: 5px;
@@ -167,8 +177,8 @@ header {
 h2 {
   font-family: 'Caveat', cursive, 'Fira Mono', monospace;
   color: var(--accent-primary);
-  font-size: 1.7em;
-  margin-bottom: .3em;
+  font-size: 1.5em;
+  margin-bottom: 0.3em;
   margin-top: 0.8em;
   letter-spacing: 0.5px;
 }
@@ -176,19 +186,27 @@ h2 {
 form {
   display: flex;
   flex-direction: column;
-  gap: 1em;
-  margin-bottom: 2em;
+  gap: 0.8em;
+  margin-bottom: 1.5em;
 }
 
 input, select, textarea {
-  padding: .8em 1em;
-  font-size: 1.1em;
+  padding: 0.8em;
+  font-size: 1em;
   background: var(--input-bg) !important;
   color: var(--input-text) !important;
   border: 2px solid var(--border-color);
   border-radius: 6px;
   font-family: 'Fira Mono', 'Consolas', monospace;
   transition: box-shadow 0.15s, border 0.15s;
+  width: 100%;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input[type="date"] {
+  padding: 0.8em;
 }
 
 input::placeholder, textarea::placeholder {
@@ -213,13 +231,14 @@ button {
   font-family: 'Fira Mono', 'Consolas', monospace;
   border: 2px solid var(--accent-primary);
   border-radius: 6px;
-  padding: .7em 1em;
-  font-size: 1.03em;
+  padding: 0.7em 1em;
+  font-size: 1em;
   font-weight: bold;
   letter-spacing: 1px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(26, 33, 56, 0.11);
   transition: background .13s, color .13s, border .13s;
+  width: 100%;
 }
 
 button:hover {
@@ -237,6 +256,7 @@ button:hover {
 .image-upload-section label {
   color: var(--text-secondary);
   font-weight: bold;
+  font-size: 0.95em;
 }
 
 .image-preview {
@@ -258,6 +278,24 @@ button:hover {
   display: block;
 }
 
+.filter-buttons {
+  display: flex;
+  gap: 0.8em;
+  margin-bottom: 1.5em;
+  flex-wrap: wrap;
+}
+
+#filterInput {
+  flex: 1;
+  min-width: 150px;
+}
+
+.clear-btn {
+  background: #666;
+  padding: 0.8em 1em;
+  font-size: 0.9em;
+}
+
 .task-list {
   margin: 1em 0 2em 0;
   padding: 0;
@@ -269,13 +307,12 @@ button:hover {
   border: 2px dashed var(--accent-primary);
   margin-bottom: 1em;
   border-radius: 8px;
-  padding: 1.1em .8em 1em 1.2em;
+  padding: 1em;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
   box-shadow: 2px 2px 8px rgba(23, 32, 52, 0.3);
   position: relative;
-  gap: 1em;
+  gap: 0.8em;
 }
 
 .task-list li::before {
@@ -285,23 +322,24 @@ button:hover {
   position: absolute;
   left: 8px;
   top: 2px;
-  font-size: 0.87em;
+  font-size: 0.75em;
 }
 
 .task-details {
   flex-grow: 1;
   min-width: 0;
+  margin-top: 0.5em;
 }
 
 .task-image-container {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   border-radius: 6px;
   overflow: hidden;
   border: 2px solid var(--accent-primary);
-  flex-shrink: 0;
   cursor: pointer;
   transition: transform 0.2s;
+  align-self: flex-start;
 }
 
 .task-image-container:hover {
@@ -318,17 +356,22 @@ button:hover {
   font-weight: bold;
   color: #deefff;
   font-family: inherit;
-  font-size: 1.14em;
+  font-size: 1em;
   letter-spacing: 0.5px;
   display: block;
   margin-bottom: 0.3em;
+  word-wrap: break-word;
 }
 
 .task-meta {
-  font-size: 0.98em;
+  font-size: 0.85em;
   color: #afbeea;
   margin-top: 0.3em;
   font-family: 'Fira Mono', 'Consolas', monospace;
+  word-wrap: break-word;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3em;
 }
 
 .task-meta .days-left {
@@ -343,39 +386,39 @@ button:hover {
 .priority-High {
   color: #ff6f60 !important;
   font-weight: bold;
-  font-family: inherit;
-  font-size: 1.08em;
+  font-size: 0.95em;
   letter-spacing: .5px;
 }
 
 .priority-Medium {
   color: #ffe066 !important;
   font-weight: bold;
-  font-family: inherit;
-  font-size: 1.07em;
+  font-size: 0.94em;
 }
 
 .priority-Low {
   color: #7efb95 !important;
   font-weight: bold;
-  font-family: inherit;
-  font-size: 1.03em;
+  font-size: 0.92em;
 }
 
 .task-buttons {
   display: flex;
   gap: 0.5em;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .complete-btn {
-  margin-left: 0;
+  flex: 1;
+  min-width: 70px;
   background: #332e45;
   color: #f7faff;
   border: 2px solid var(--accent-primary);
   border-radius: 5px;
-  padding: .47em 0.8em;
+  padding: 0.5em 0.8em;
   cursor: pointer;
-  font-size: 0.95em;
+  font-size: 0.85em;
   font-family: 'Fira Mono', monospace;
   font-weight: bold;
   transition: background 0.16s, color 0.14s;
@@ -408,7 +451,7 @@ button:hover {
 .modal {
   display: none;
   position: fixed;
-  z-index: 1;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
@@ -433,13 +476,14 @@ button:hover {
 
 .close {
   position: absolute;
-  top: 20px;
-  right: 30px;
+  top: 15px;
+  right: 20px;
   color: #f1f1f1;
-  font-size: 40px;
+  font-size: 30px;
   font-weight: bold;
   cursor: pointer;
   transition: color 0.3s;
+  z-index: 1001;
 }
 
 .close:hover {
@@ -455,38 +499,207 @@ button:hover {
   }
 }
 
-@media (max-width: 650px) {
-  .container {
-    max-width: 98vw;
-    padding: 1em;
-  }
+@media (max-width: 768px) {
   header {
-    font-size: 1.4em;
-    padding: .7em .5em;
+    padding: 1em 0.5em;
+    font-size: 1.8em;
   }
-  .header-content {
-    flex-direction: column;
+
+  .header-content h1 {
+    font-size: 1.2em;
   }
+
+  .container {
+    border-radius: 8px;
+    padding: 1em 0.8em 2em 0.8em;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
   .stats-dashboard {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.6em;
   }
+
+  .stat-card {
+    padding: 0.8em 0.6em;
+  }
+
+  .stat-number {
+    font-size: 1.5em;
+  }
+
+  .stat-label {
+    font-size: 0.7em;
+  }
+
+  h2 {
+    font-size: 1.3em;
+    margin-bottom: 0.3em;
+  }
+
+  form {
+    gap: 0.7em;
+  }
+
+  input, select, textarea, button {
+    font-size: 16px;
+    padding: 0.7em;
+  }
+
   .task-list li {
-    flex-wrap: wrap;
-    padding-left: 1.5em;
+    padding: 0.8em;
+    gap: 0.6em;
   }
-  .task-details {
-    width: 100%;
-    margin-bottom: 0.8em;
+
+  .task-title {
+    font-size: 0.95em;
   }
-  .task-buttons {
-    width: 100%;
+
+  .task-meta {
+    font-size: 0.8em;
   }
+
   .complete-btn {
-    flex: 1;
-    min-width: 80px;
+    font-size: 0.8em;
+    padding: 0.5em 0.6em;
+    min-width: 60px;
   }
+
+  .filter-buttons {
+    gap: 0.6em;
+  }
+
+  .clear-btn {
+    padding: 0.7em 0.8em;
+    font-size: 0.85em;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 0.8em 0.3em;
+    font-size: 1.5em;
+  }
+
+  .header-content {
+    gap: 0.5em;
+  }
+
+  .header-content h1 {
+    font-size: 1em;
+    min-width: 150px;
+  }
+
+  .theme-toggle {
+    padding: 0.5em 1em;
+    font-size: 0.8em;
+  }
+
+  .container {
+    border-radius: 6px;
+    padding: 0.8em 0.6em 1.5em 0.6em;
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+
+  .stats-dashboard {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5em;
+    margin-bottom: 1em;
+  }
+
+  .stat-card {
+    padding: 0.6em 0.4em;
+  }
+
+  .stat-number {
+    font-size: 1.3em;
+  }
+
+  .stat-label {
+    font-size: 0.65em;
+  }
+
+  h2 {
+    font-size: 1.1em;
+  }
+
+  form {
+    gap: 0.6em;
+  }
+
+  input, select, textarea {
+    font-size: 16px;
+    padding: 0.6em;
+  }
+
+  button {
+    font-size: 0.9em;
+    padding: 0.6em;
+  }
+
+  .task-list li {
+    padding: 0.7em;
+    gap: 0.5em;
+  }
+
+  .task-list li::before {
+    font-size: 0.65em;
+  }
+
+  .task-title {
+    font-size: 0.9em;
+  }
+
+  .task-meta {
+    font-size: 0.75em;
+    gap: 0.2em;
+  }
+
   .task-image-container {
     width: 60px;
     height: 60px;
+  }
+
+  .complete-btn {
+    font-size: 0.75em;
+    padding: 0.4em 0.5em;
+    min-width: 50px;
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+    gap: 0.5em;
+  }
+
+  #filterInput {
+    width: 100%;
+  }
+
+  .clear-btn {
+    width: 100%;
+    padding: 0.6em;
+    font-size: 0.8em;
+  }
+
+  .close {
+    top: 10px;
+    right: 10px;
+    font-size: 25px;
+  }
+}
+
+@media (max-width: 360px) {
+  .stat-number {
+    font-size: 1.2em;
+  }
+
+  .task-title {
+    font-size: 0.85em;
+  }
+
+  .complete-btn {
+    font-size: 0.7em;
   }
 }
