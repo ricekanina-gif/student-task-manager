@@ -3,11 +3,17 @@ const CONFIG = {
   THEME_KEY: 'student-tasks-theme',
   MIN_YEAR: 1900,
   MAX_YEAR: 2100,
-  PRIORITY_ORDER: { High: 1, Medium: 2, Low: 3 }
+  PRIORITY_ORDER: { High: 1, Medium: 2, Low: 3 },
+  NOTIFICATION_INTERVAL: 30 * 60 * 1000 // 30 minutes
 };
 
 let tasks = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || [];
 let selectedImageBase64 = null;
+let notificationInterval = null;
+let lastNotificationTime = 0;
+let isPageFocused = true;
+let notificationCount = 0;
+let originalTitle = document.title;
 
 const taskForm = document.getElementById('taskForm');
 const taskList = document.getElementById('taskList');
@@ -28,14 +34,115 @@ const totalTasks = document.getElementById('totalTasks');
 const progressFill = document.getElementById('progressFill');
 const progressPercent = document.getElementById('progressPercent');
 
-// Modal elements
 const modal = document.getElementById('imageModal');
 const modalImage = document.getElementById('modalImage');
 const closeBtn = document.querySelector('.close');
+const notificationModal = document.getElementById('notificationModal');
+const notifCloseBtn = document.querySelector('.notif-close');
 
 dueDateInput.min = new Date().toLocaleDateString('en-CA');
 initTheme();
+setupAltTabDetection();
+startNotificationReminder();
 renderTasks();
+
+// ===== ALT+TAB DETECTION =====
+function setupAltTabDetection() {
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      isPageFocused = false;
+      console.log('🔴 You switched away from the page');
+    } else {
+      isPageFocused = true;
+      console.log('🟢 You returned to the page');
+      // Show notification again when returning
+      const activeTasks = tasks.filter(t => !t.completed);
+      if (activeTasks.length > 0) {
+        showNotificationModal(activeTasks);
+        playNotificationSound();
+      }
+    }
+  });
+
+  window.addEventListener('focus', function() {
+    isPageFocused = true;
+  });
+
+  window.addEventListener('blur', function() {
+    isPageFocused = false;
+  });
+
+  // Change page title when switched away
+  setInterval(function() {
+    if (!isPageFocused && notificationCount > 0) {
+      document.title = `⏰ ${notificationCount} Tasks Waiting! - ${originalTitle}`;
+    } else {
+      document.title = originalTitle;
+    }
+  }, 1000);
+}
+
+// ===== SOUND NOTIFICATION =====
+function playNotificationSound() {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Create a pleasant beep sound
+    oscillator.frequency.value = 800; // Hz
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+    
+    console.log('🔊 Sound played!');
+  } catch (e) {
+    console.log('Audio not available on this device');
+  }
+}
+
+// ===== EMAIL NOTIFICATION =====
+function sendEmailNotification(tasks) {
+  const taskList = tasks.slice(0, 5).map(task => {
+    const daysLeft = daysUntilDue(task.dueDate);
+    return `- ${task.title} (${task.course}) - Due: ${formatNiceDate(task.dueDate)}`;
+  }).join('\n');
+
+  const emailBody = `📋 TASK REMINDER ALERT!
+
+You have ${tasks.length} pending tasks:
+
+${taskList}
+
+${tasks.length > 5 ? `\n... and ${tasks.length - 5} more tasks` : ''}
+
+⏰ Please complete your tasks on time!
+
+Visit your Task Manager to view all tasks.`;
+
+  const mailtoLink = `mailto:?subject=📋 Task Reminder Alert&body=${encodeURIComponent(emailBody)}`;
+  
+  return {
+    subject: '📋 Task Reminder Alert',
+    body: emailBody,
+    mailtoLink: mailtoLink
+  };
+}
+
+window.sendEmail = function() {
+  const activeTasks = tasks.filter(t => !t.completed);
+  if (activeTasks.length > 0) {
+    const emailData = sendEmailNotification(activeTasks);
+    window.location.href = emailData.mailtoLink;
+  }
+};
 
 function initTheme() {
   const savedTheme = localStorage.getItem(CONFIG.THEME_KEY);
@@ -51,6 +158,70 @@ window.toggleTheme = function() {
   localStorage.setItem(CONFIG.THEME_KEY, isDark ? 'dark' : 'light');
   themeToggle.textContent = isDark ? '☀️ Light' : '🌙 Dark';
 };
+
+function startNotificationReminder() {
+  if (notificationInterval) clearInterval(notificationInterval);
+  
+  notificationInterval = setInterval(() => {
+    const activeTasks = tasks.filter(t => !t.completed);
+    if (activeTasks.length > 0) {
+      notificationCount = activeTasks.length;
+      showNotificationModal(activeTasks);
+      playNotificationSound(); // 🔊 PLAY SOUND
+    }
+  }, CONFIG.NOTIFICATION_INTERVAL);
+}
+
+function showNotificationModal(activeTasks) {
+  const pendingCount = activeTasks.length;
+  document.getElementById('pendingTaskCount').textContent = pendingCount;
+  
+  const tasksList = document.getElementById('notificationTasksList');
+  tasksList.innerHTML = activeTasks
+    .slice(0, 5)
+    .map(task => {
+      const daysLeft = daysUntilDue(task.dueDate);
+      const priorityClass = task.priority.toLowerCase().replace(/\s/g, '') + '-priority';
+      
+      let dueDateText = '';
+      if (daysLeft === 0) dueDateText = 'Due today!';
+      else if (daysLeft === 1) dueDateText = 'Due tomorrow';
+      else if (daysLeft > 1) dueDateText = `Due in ${daysLeft} days`;
+      else dueDateText = `${Math.abs(daysLeft)} days overdue!`;
+      
+      return `
+        <div class="notification-task-item ${priorityClass}">
+          <span class="notification-task-title">${escapeHtml(task.title)}</span>
+          <span class="notification-task-course">${escapeHtml(task.course)}</span>
+          <span class="notification-task-duedate">${dueDateText}</span>
+        </div>
+      `;
+    })
+    .join('');
+  
+  if (activeTasks.length > 5) {
+    tasksList.innerHTML += `
+      <div style="text-align: center; color: rgba(255,255,255,0.8); padding: 0.5rem; font-size: 0.9rem;">
+        +${activeTasks.length - 5} more tasks
+      </div>
+    `;
+  }
+  
+  notificationModal.classList.add('show');
+}
+
+function closeNotification() {
+  notificationModal.classList.remove('show');
+  notificationCount = 0;
+}
+
+function focusOnTasks() {
+  closeNotification();
+  const taskSection = document.querySelector('h2:nth-of-type(3)');
+  if (taskSection) {
+    taskSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 
 function formatNiceDate(isoDate) {
   const d = new Date(isoDate);
@@ -121,7 +292,6 @@ taskImageInput.addEventListener('change', function(e) {
   }
 });
 
-// Modal functions
 function openImageModal(imageSrc) {
   modal.classList.add('show');
   modalImage.src = imageSrc;
@@ -132,6 +302,7 @@ function closeImageModal() {
 }
 
 closeBtn.addEventListener('click', closeImageModal);
+notifCloseBtn.addEventListener('click', closeNotification);
 
 modal.addEventListener('click', function(event) {
   if (event.target === modal) {
@@ -139,10 +310,16 @@ modal.addEventListener('click', function(event) {
   }
 });
 
-// Keyboard support
+notificationModal.addEventListener('click', function(event) {
+  if (event.target === notificationModal) {
+    closeNotification();
+  }
+});
+
 document.addEventListener('keydown', function(event) {
   if (event.key === 'Escape') {
     closeImageModal();
+    closeNotification();
   }
 });
 
@@ -275,3 +452,6 @@ window.clearCompleted = function() {
   localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(tasks));
   renderTasks();
 };
+
+window.closeNotification = closeNotification;
+window.focusOnTasks = focusOnTasks;
