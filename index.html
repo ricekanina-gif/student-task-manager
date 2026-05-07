@@ -56,7 +56,7 @@
       </select>
       
       <div class="image-upload-section">
-        <label for="taskImage">📷 Add Image </label>
+        <label for="taskImage">📷 Add Image (Optional)</label>
         <input type="file" id="taskImage" accept="image/*">
         <div id="imagePreview" class="image-preview"></div>
       </div>
@@ -73,10 +73,23 @@
     <ul class="task-list" id="taskList"></ul>
   </div>
 
-
   <div id="imageModal" class="modal">
     <span class="close">&times;</span>
     <img class="modal-content" id="modalImage">
+  </div>
+
+  <div id="notificationModal" class="notification-modal">
+    <div class="notification-content">
+      <button class="notif-close">&times;</button>
+      <div class="notif-icon">⏰</div>
+      <h3>Task Reminder!</h3>
+      <p>You have <strong id="pendingTaskCount">0</strong> pending tasks</p>
+      <div id="notificationTasksList" class="notification-tasks-list"></div>
+      <div class="notif-buttons">
+        <button class="notif-btn" onclick="closeNotification()">Dismiss</button>
+        <button class="notif-btn primary" onclick="focusOnTasks()">View Tasks</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
